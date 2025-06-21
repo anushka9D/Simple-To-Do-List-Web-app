@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>To-Do List with CRUD</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f9;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        #taskInput {
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            margin-right: 10px;
+            width: 250px;
+        }
+
+        button {
+            padding: 10px 15px;
+            background-color: #4CAF50;
+            color: white;
+            font-size: 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        #taskList {
+            list-style-type: none;
+            padding: 0;
+            margin-top: 20px;
+            width: 100%;
+            max-width: 300px;
+        }
+
+        #taskList li {
+            padding: 10px;
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            margin-bottom: 10px;
+            font-size: 18px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        #taskList li:nth-child(odd) {
+            background-color: #f9f9f9;
+        }
+
+        #taskList li:last-child {
+            margin-bottom: 0;
+        }
+
+        .btn {
+            padding: 5px 10px;
+            background-color: #2196F3;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-left: 5px;
+        }
+
+        .btn:hover {
+            background-color: #0b7dda;
+        }
+
+        .btn-delete {
+            background-color: #f44336;
+        }
+
+        .btn-delete:hover {
+            background-color: #da190b;
+        }
+
+        .btn-edit {
+            background-color: #ff9800;
+        }
+
+        .btn-edit:hover {
+            background-color: #e68900;
+        }
+    </style>
+</head>
+<body>
+    <h1>To-Do List</h1>
+
+    <input type="text" id="taskInput" placeholder="Enter task">
+    <button onclick="addTask()">Add Task</button>
+
+    <ul id="taskList"></ul>
+
+    <script>
+        function loadTasks() {
+            const storedTasks = localStorage.getItem('tasks');
+            if (storedTasks) {
+                const tasks = JSON.parse(storedTasks);
+                tasks.forEach((task, index) => {
+                    createTaskElement(task, index);
+                });
+            }
+        }
+
+        function saveTasks() {
+            const tasks = [];
+            const taskList = document.getElementById('taskList');
+            const taskItems = taskList.getElementsByTagName('li');
+            for (let i = 0; i < taskItems.length; i++) {
+                tasks.push(taskItems[i].textContent.replace('EditDelete', '').trim());
+            }
+            localStorage.setItem('tasks', JSON.stringify(tasks));
+        }
+
+        function createTaskElement(task, index) {
+            const taskList = document.getElementById('taskList');
+            const listItem = document.createElement('li');
+            listItem.textContent = task;
+
+            // Create Edit button
+            const editButton = document.createElement('button');
+            editButton.textContent = 'Edit';
+            editButton.classList.add('btn', 'btn-edit');
+            editButton.onclick = () => editTask(listItem, index);
+
+            // Create Delete button
+            const deleteButton = document.createElement('button');
+            deleteButton.textContent = 'Delete';
+            deleteButton.classList.add('btn', 'btn-delete');
+            deleteButton.onclick = () => deleteTask(listItem, index);
+
+            listItem.appendChild(editButton);
+            listItem.appendChild(deleteButton);
+            taskList.appendChild(listItem);
+        }
+
+        function addTask() {
+            const taskInput = document.getElementById('taskInput');
+            const taskText = taskInput.value;
+
+            if (taskText === '') {
+                alert('Please enter a task.');
+                return;
+            }
+
+            createTaskElement(taskText);
+            saveTasks();
+            taskInput.value = '';
+        }
+
+        function editTask(listItem, index) {
+            const taskInput = document.getElementById('taskInput');
+            taskInput.value = listItem.textContent.replace('EditDelete', '').trim();
+            
+            // Remove task before editing and re-adding it
+            listItem.remove();
+            const tasks = JSON.parse(localStorage.getItem('tasks'));
+            tasks.splice(index, 1);
+            localStorage.setItem('tasks', JSON.stringify(tasks));
+        }
+
+        function deleteTask(listItem, index) {
+            listItem.remove();
+            const tasks = JSON.parse(localStorage.getItem('tasks'));
+            tasks.splice(index, 1);
+            localStorage.setItem('tasks', JSON.stringify(tasks));
+        }
+
+        loadTasks(); 
+    </script>
+</body>
+</html>
